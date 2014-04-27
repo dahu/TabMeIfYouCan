@@ -25,6 +25,8 @@ function! TabMeIfYouCan(func_pair, arg_pair)
     let &swb = 'usetab'
     exe 'sbuffer ' . fn
     let &swb = old_swb
+  else
+    exe "tabe " . fn
   end
   return call(a:func_pair[1], a:arg_pair[1])
 endfunction
