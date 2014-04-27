@@ -1,0 +1,54 @@
+TabMeIfYouCan
+-------------
+
+__Dance me to the end of tabs__
+
+TIP: If you like TabMeIfYouCan and want to share the W00t!, I'm grateful for
+https://www.gittip.com/bairuidahu/[tips] or
+http://of-vim-and-vigor.blogspot.com/[beverages].
+
+Examples
+^^^^^^^^
+
+.Make ++ctrl-]++ jump to file in existing tab if possible
+
+----
+function! TJ_pre(word)
+  let tags = taglist('\<' . a:word . '\>')
+  return tags[0]['filename']
+endfunction
+
+function! TJ_post(word)
+  exe 'tag ' . a:word
+endfunction
+
+function! TJ()
+  let word = expand('<cword>')
+  call TabMeIfYouCan(['TJ_pre', 'TJ_post'], [[word], [word]])
+endfunction
+
+nnoremap <c-]> :call TJ()<cr>
+----
+
+.Make ++gf++ jump to existing tab, or open the file in a new tab:
+
+----
+function! GF_pre(file)
+  let t:tmiyc_win = winnr('$')
+  return a:file
+endfunction
+
+function! GF_post(file)
+  if winnr('$') != t:tmiyc_win
+    close
+    exe "tabe " . a:file
+  endif
+endfunction
+
+function! GF()
+  let file = expand(expand('<cfile>'))
+  call TabMeIfYouCan(['GF_pre', 'GF_post'], [[file], [file]])
+endfunction
+
+nnoremap gf :call GF()<cr>
+----

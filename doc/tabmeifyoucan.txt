@@ -1,0 +1,78 @@
+*tabmeifyoucan.txt*	Try to use buffers in open tabs if possible.
+
+
+			VIM REFERENCE MANUAL	by Barry Arthur
+
+
+Help on using tabmeifyoucan                                *tabmeifyoucan*
+
+1. Introduction				|tabmeifyoucan-intro|
+1. Examples				|tabmeifyoucan-examples|
+
+==============================================================================
+ 1. INTRODUCTION                                     *tabmeifyoucan-intro*
+
+TabMeIfYouCan tries to operate on a buffer that is already loaded in
+another tabpage instead of switching to that buffer within the current
+window, as so many Vim commands do by default.
+
+The TabMeIfYouCan(func_pair, arg_pair) function takes two arguments:
+
+func_pair:	A list of functions, the first of which is called
+                before the |:sbuffer| command and is responsible for
+                returning the name of the buffer to switch to. The
+                second function is called after the :sbuffer command.
+
+arg_pair:	A two-element list of function arguments (as lists),
+                the first list is for the first function in func_pair,
+                and the second list for the second function.
+
+==============================================================================
+ 2. INTRODUCTION                                  *tabmeifyoucan-examples*
+
+Make |ctrl-]| jump to file in existing tab if possible
+
+>
+function! TJ_pre(word)
+  let tags = taglist('\<' . a:word . '\>')
+  return tags[0]['filename']
+endfunction
+
+function! TJ_post(word)
+  exe 'tag ' . a:word
+endfunction
+
+function! TJ()
+  let word = expand('<cword>')
+  call TabMeIfYouCan(['TJ_pre', 'TJ_post'], [[word], [word]])
+endfunction
+
+nnoremap <c-]> :call TJ()<cr>
+<
+
+Make |gf| jump to existing tab, or open the file in a new tab:
+
+>
+function! GF_pre(file)
+  let t:tmiyc_win = winnr('$')
+  return a:file
+endfunction
+
+function! GF_post(file)
+  if winnr('$') != t:tmiyc_win
+    close
+    exe "tabe " . a:file
+  endif
+endfunction
+
+function! GF()
+  let file = expand(expand('<cfile>'))
+  call TabMeIfYouCan(['GF_pre', 'GF_post'], [[file], [file]])
+endfunction
+
+nnoremap gf :call GF()<cr>
+<
+
+==============================================================================
+Template From: https://github.com/dahu/Area-41/
+ vim:tw=78:ts=8:ft=help:norl:
