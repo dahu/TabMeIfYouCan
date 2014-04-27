@@ -39,9 +39,11 @@ function! GF_pre(file)
 endfunction
 
 function! GF_post(file)
-  if winnr('$') != t:tmiyc_win
-    close
-    exe "tabe " . a:file
+  if exists('t:tmiyc_win')
+    if winnr('$') != t:tmiyc_win
+      close
+      exe "tabe " . a:file
+    endif
   endif
 endfunction
 
